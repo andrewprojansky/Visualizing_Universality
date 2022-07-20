@@ -5,7 +5,7 @@ universality, and magic states/gates.
 
 Code Written by Andrew Projansky
 Project Start Date: 7/18/2022
-Most recent update: 7/19/2022
+Most recent update: 7/20/2022
 '''
 
 import numpy as np
@@ -21,16 +21,24 @@ S = np.array([[1,0],[0,1j]])
 Z = np.array([[1,0],[0,-1]])
 X = np.array([[0,1],[1,0]])
 Y = np.array([[0,-1j],[1j,0]])
+T = np.array([[np.exp(-1j*np.pi/8),0],[0, np.exp(1j*np.pi/8)]])
+univ_rot = np.matmul(T, np.matmul(H, np.matmul(T, H)))
 
 '''
 Defines the dictionaries of different gate sets: currently,
-just the hadamard, the one dimensional clifford group,
-and the clifford plus the pauli matrices
+the hadamard, the one dimensional clifford group, the hadamard and t gate,
+the one dimensional clifford plus T, and the clifford plus the pauli matrices
+
+currently for testing we have a gate set that is just a single matrix,
+THTH - the irrational rotation
 '''
 
 C0 = {1:H}
 C1 = {1:H,2:S}
+CP2 = {1:H,2:T}
+CP3 = {1:H,2:S,3:T}
 CP1 = {1:H,2:S,3:Z,4:X,5:Y}
+test = {1: univ_rot}
 
 '''
 Defines possible initial states
@@ -143,8 +151,18 @@ def U2_to_03Graph(angle_arr):
     xs = np.cos(u) * np.sin(v)
     ys = np.sin(u) * np.sin(v)
     zs = np.cos(v)
+    xin = [0]
+    yin = [0]
+    zin = [1]
+
+    '''
+    First plot is of the bloch sphere, second is of all the generated data
+    third is for labelling the state |0>
+    '''
+
     ax.plot_surface(xs, ys, zs, color='lightgrey', alpha=0.3)
-    ax.scatter(x, y, z, marker='o', color='black')
+    ax.scatter(x, y, z, marker='o', color='black', alpha=0.9)
+    ax.scatter(xin, yin, zin, marker='o', color='red')
     plt.show()
 
 
