@@ -84,6 +84,10 @@ class Experiment:
         List of gates to be applied, if not suppplied will generate random
         gates from gate set. The default is None.
 
+    Attributes
+    ----------
+    angles : list
+        angles from states Used for plotting
     """
 
     def __init__(
@@ -100,11 +104,14 @@ class Experiment:
 
         if num_sites == None and init_states == None:
             self.states = [np.array([0, 1])]
+            self.num_sites = 1
         elif init_states == None:
             """TODO make random init positions"""
             self.states = [np.array([0, 1]) for x in range(num_sites)]
+            self.num_sites = num_sites
         elif num_sites == None:
             self.states = [np.array(x) for x in init_states]
+            self.num_sites = len(init_states)
 
         if gate_list == None:
             self.gate_list = self.__gen_gate_list()
@@ -122,21 +129,19 @@ class Experiment:
         return [random.choice(vals) for x in range(self.num_steps)]
 
     ################# run functions ##################################
-    def run(self):
+    def run_stepwise(self):
         self.intermediate_states = self.__gen_intermediate_states()
         self.angles = self.__gen_angles()
 
-    def __gen_final_unitary(self):
-        """
-        performs matrix mutiplication to compose total unitary
-        from multiplcation of randomly selected gates
-        varibials-
-        """
-        gate_step_i = self.gate_list[0]
-        for i in range(1, num_steps):
-            gate_step_j = self.gate_list(i)
-            gate_step_i = np.matmul(gate_step_j, gate_step_i)
-        return gate_step_i
+    def run_multiple(self, num_runs: int):
+        self.angles = [[self.__get_angle(state)] for state in self.states]
+        for i in range(num_runs):
+            self.gate_list = self.__gen_gate_list()
+            self.final_unitary = self.__gen_final_unitary()
+            f_state = self.__gen_final_state()
+            new_angles = [self.__get_angle(state) for state in f_state]
+            for i in range(self.num_sites):
+                self.angles[i].append(new_angles[i])
 
     def __gen_intermediate_states(self):
         inter_gate_list = self.gen_intermediate_unitaries()
@@ -148,8 +153,20 @@ class Experiment:
             unitary_arr.append(np.matmul(unitary_arr[i - 1], self.gate_list[i]))
         return unitary_arr
 
-    # def __gen_final_state(self):
-    #     return [np.matmul(self.final_unitary, x) for x in self.states]
+    def __gen_final_unitary(self):
+        """
+        performs matrix mutiplication to compose total unitary
+        from multiplcation of randomly selected gates
+        varibials-
+        """
+        gate_step_i = self.gate_list[0]
+        for i in range(1, self.num_steps):
+            gate_step_j = self.gate_list[i]
+            gate_step_i = np.matmul(gate_step_j, gate_step_i)
+        return gate_step_i
+
+    def __gen_final_state(self):
+        return [np.matmul(self.final_unitary, x) for x in self.states]
 
     def __gen_angles(self):
         return [
@@ -187,20 +204,20 @@ class Experiment:
         plt.show()
 
     def __gen_xyz_points(self, angle_arr):
-        x = np.array([self.__get_x(angle_arr[0], angle_arr[1])])
-        y = np.array([self.__get_y(angle_arr[0], angle_arr[1])])
-        z = np.array([self.__get_z(angle_arr[0], angle_arr[1])])
+        """
+        Parameters
+        ----------
+        angle_arr : list
+            list of the form [[theta1,phi1],[theta2,phi2] ...].
 
-        for k in range(len(angle_arr) // 2 - 1):
-            x = np.append(
-                x, np.array([self.__get_x(angle_arr[2 * k + 2], angle_arr[2 * k + 3])])
-            )
-            y = np.append(
-                y, np.array([self.__get_y(angle_arr[2 * k + 2], angle_arr[2 * k + 3])])
-            )
-            z = np.append(
-                z, np.array([self.__get_z(angle_arr[2 * k + 2], angle_arr[2 * k + 3])])
-            )
+        """
+        x = np.array([])
+        y = np.array([])
+        z = np.array([])
+        for i in angle_arr:
+            x = np.append(x, self.__get_x(i[0], i[1]))
+            y = np.append(y, self.__get_y(i[0], i[1]))
+            z = np.append(z, self.__get_z(i[0], i[1]))
 
         return x, y, z
 
@@ -217,6 +234,10 @@ class Experiment:
 #%%
 n = np.sqrt(1 / 2)
 init_state = [[1, 0], [0, 1], [n, n]]
-exp = Experiment(init_states=init_state, num_steps=200)
-exp.run()
+exp = Experiment(init_states=init_state, num_steps=500)
+exp.run_stepwise()
+exp.plot()
+#%%
+exp = Experiment(num_steps=100)
+exp.run_multiple(num_runs=500)
 exp.plot()
