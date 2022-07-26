@@ -4,7 +4,7 @@ gate sets on different initial states, with the goal of understanding
 universality, and magic states/gates.
 
 Code Written by Andrew Projansky
-hahahahaha -Joe
+and Joseph Gibson
 Project Start Date: 7/18/2022
 """
 
@@ -35,21 +35,11 @@ THTH - the irrational rotation
 
 C0 = {1: H}
 C1 = {1: H, 2: S}
-CP2 = {1: H, 2: T}
-CP3 = {1: H, 2: S, 3: T}
-CP1 = {1: H, 2: S, 3: Z, 4: X, 5: Y}
+C2 = {1: H, 2: T}
+C3 = {1: H, 2: S, 3: T}
+CP1 = {1: H, 2: S, 3: Z, 4: X, 5: Y, 6: T}
+
 test = {1: univ_rot}
-
-"""
-Defines possible initial states
-
-note: still need to add in an arbitrary state
-"""
-
-th = np.arccos(1 / np.sqrt(3)) / 2
-IS1_1 = np.array([1.0, 0.0])
-IS2_1 = np.array([np.cos(th), np.exp(np.pi / 4 * 1j) * np.sin(th)])
-# IS3_1 = 'random'
 
 """
 Circuit_Run: class for defining a trial
