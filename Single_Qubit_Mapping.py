@@ -50,12 +50,6 @@ Circuit_Run: class for defining a trial
     runs: number of data points for given number of gates and inital state
 """
 #%%
-"""
-possible addition if we want fancy states
-class state:
-    def __init__(self, init_state:numpy.ndarray =np.array([0,1])):
-        self.state = init_state
-"""
 
 
 class Experiment:
@@ -82,7 +76,7 @@ class Experiment:
 
     def __init__(
         self,
-        gate_set: dict = CP2,
+        gate_set: dict = C2,
         num_steps: int = 1,
         num_sites: int = None,
         init_states: list = None,
